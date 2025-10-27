@@ -34,8 +34,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             window.location.href = 'users_crud.php';
         </script>";
         exit;
-
-
     } elseif ($action === 'update') {
         $id = (int)$_POST['id'];
         $stmt = $conn->prepare("UPDATE users SET name=:name, email=:email, role=:role, department_id=:dept" . ($password ? ", password=PASSWORD(:password)" : "") . " WHERE id=:id");
@@ -47,7 +45,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             window.location.href = 'users_crud.php';
         </script>";
         exit;
-
     } elseif ($action === 'delete') {
         $id = (int)$_POST['id'];
         $stmt = $conn->prepare("DELETE FROM users WHERE id = :id");
@@ -58,8 +55,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </script>";
         exit;
     }
-
-    
 }
 
 // Fetch users
@@ -80,6 +75,7 @@ $users = $stmt->fetchAll();
 
 <body class="">
     <?php include 'header.php'; ?>
+        <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 
     <div class="container ">
         <h2 class="mb-4">Users (Admin)</h2>
@@ -88,7 +84,7 @@ $users = $stmt->fetchAll();
         <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#userModal" onclick="openModal()">Add User</button>
 
         <!-- Users Table -->
-        <table class="table table-bordered">
+        <table id="UserTable" class="table table-bordered">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -100,9 +96,9 @@ $users = $stmt->fetchAll();
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($users as $u): ?>
+                <?php foreach ($users  as $key => $u): ?>
                     <tr>
-                        <td><?php echo $u['id']; ?></td>
+                        <td><?php echo $key + 1; ?></td>
                         <td><?php echo htmlspecialchars($u['name']); ?></td>
                         <td><?php echo htmlspecialchars($u['email']); ?></td>
                         <td><?php echo $u['role']; ?></td>
@@ -169,7 +165,27 @@ $users = $stmt->fetchAll();
             </div>
         </div>
     </div>
+    <!-- Add DataTables JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
+    <!-- Initialize DataTable -->
+    <script>
+        $(document).ready(function() {
+            $('#UserTable').DataTable({
+                responsive: true,
+                order: [
+                    [0, 'asc']
+                ], // Sort by first column
+                pageLength: 10,
+                language: {
+                    search: "Search events:",
+                    lengthMenu: "Show _MENU_ entries per page"
+                }
+            });
+        });
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function openModal(user = null) {
@@ -209,4 +225,3 @@ $users = $stmt->fetchAll();
 </body>
 
 </html>
-
